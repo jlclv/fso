@@ -1,5 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
+
 const app = express();
 
 const persons = [
@@ -26,8 +28,12 @@ const persons = [
 ];
 
 app.use(express.json());
-
+app.use(express.static("dist"));
+morgan.token("body", (request) => {
+  return JSON.stringify(request.body);
+});
 app.use(morgan(":method :url :status - :response-time ms :body"));
+app.use(cors());
 
 app.get("/", (request, response) => {
   const datetime = new Date();
@@ -88,12 +94,9 @@ app.post("/api/persons", (request, response) => {
 
   persons.concat(person);
   response.json(person);
-  morgan.token("body", (request) => {
-    return JSON.stringify(request.body);
-  });
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
